@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cricket Agent | Elite Player Representation</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="./assets/logo1.png">
+    <link rel="apple-touch-icon" href="./assets/logo1.png">
+    <meta name="description"
+        content="Waheed Shirzay — ECB Registered Cricket Agent. Connecting elite cricket talent with UK and global clubs.">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Custom Cricket Ball Cursor -->
+    <div id="custom-cursor" aria-hidden="true">
+        <div class="cursor-seam"></div>
+    </div>
+    <div id="cursor-follower" aria-hidden="true"></div>
+
+    <!-- Cricket Preloader -->
+    <div id="cricket-loader">
+        <div class="loader-content">
+            <div class="cricket-anim-container">
+                <div class="stumps">
+                    <span class="stump"></span>
+                    <span class="stump"></span>
+                    <span class="stump"></span>
+                    <span class="bail bail-left"></span>
+                    <span class="bail bail-right"></span>
+                </div>
+                <div class="cricket-ball">
+                    <span class="ball-seam"></span>
+                </div>
+            </div>
+            <div class="loader-text-wrapper">
+                <h3 class="loader-title">LOADING TALENT PORTAL</h3>
+                <div class="loader-progress-track">
+                    <div class="loader-progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Navigation Bar -->
+    <header class="navbar-wrapper">
+        <div class="container">
+            <div class="navbar-pill">
+                <a href="#" class="logo-brand" onclick="showPage('about')">
+                    <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="nav-logo-img">
+                </a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link active" id="nav-about" onclick="showPage('about')">About</a>
+                        </li>
+                        <li><a href="#" class="nav-link" id="nav-players" onclick="showPage('players')">Featured
+                                Players</a></li>
+                        <li><a href="#gear-section" class="nav-link" onclick="showPage('about')">Accessories</a></li>
+                        <li><a href="#" class="nav-link" id="nav-register" onclick="showPage('register')">Register</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="nav-actions">
+                    <button class="btn-pill-action" onclick="showPage('register')">Sign Up <span
+                            class="arrow">→</span></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE 1: ABOUT US & SHOWCASE -->
+    <main id="page-about" class="page-section active">
+
+        <!-- Hero Section -->
+        <section class="hero-dark">
+            <div class="hero-bg-overlay"></div>
+            <div class="container hero-container">
+                <div class="hero-top-tag">
+                    <span class="pulse-dot"></span> Transfer Portal Live | ECB Reg: #ECB-----
+                </div>
+
+                <div class="hero-main-layout">
+                    <div class="hero-text-side">
+                        <h1 class="hero-title">The Cricket<br><span class="highlight-text">Agent</span>
+                            <img src="./assets/logo1.png" alt="Logo" class="hero-inline-logo">
+                        </h1>
+                        <p class="hero-subtitle">Waheed Shirzay connects top-tier cricket prospects with English leagues
+                            and international clubs ahead of the transfer window close.</p>
+
+                        <!-- Countdown Bar -->
+                        <div class="countdown-bar">
+                            <div class="time-unit">
+                                <span class="time-num" id="days">14</span>
+                                <span class="time-label">Days</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-num" id="hours">08</span>
+                                <span class="time-label">Hours</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-num" id="mins">42</span>
+                                <span class="time-label">Mins</span>
+                            </div>
+                            <div class="countdown-text">
+                                <p>Transfer Window Deadline</p>
+                                <strong>Official ECB Registration Window</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Players Section -->
+        <!-- Featured Players Section -->
+        <section class="featured-section">
+            <div class="container">
+                <div class="section-header-compact">
+                    <h2>FEATURED PROSPECTS & LEGENDS</h2>
+                    <p>Showcasing our top-tier represented talent entering the global transfer window. Register today to
+                        secure your spot alongside elite prospects.</p>
+                </div>
+
+                <div class="players-carousel">
+                    <!-- Real Player Card (1st Card) -->
+                    <div class="athlete-card" onclick="showPage('players')">
+                        <div class="card-img-holder">
+                            <!-- Yahan aap apne real player ki image ka link ya local path daal sakte hain -->
+                            <img src="./assets/ID-1.png" alt="Real Player" loading="lazy">
+                            <span class="sport-tag tag-lime">Verified Pro</span>
+                        </div>
+                        <div class="card-info">
+                            <h3>Ziaul Haq Parwan</h3>
+                            <p>Elite All-Rounder & Match Winner</p>
+                        </div>
+                    </div>
+
+                    <!-- Dummy Card 2: Coming Soon -->
+                    <div class="athlete-card" onclick="showPage('register')">
+                        <div class="card-img-holder coming-soon-holder">
+                            <div class="coming-soon-overlay">
+                                <span class="sport-tag">Coming Soon</span>
+                                <h4>SLOT AVAILABLE</h4>
+                                <p>Register to claim this spot</p>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <h3>Next Prospect</h3>
+                            <p>Your profile could be featured here next</p>
+                        </div>
+                    </div>
+
+                    <!-- Dummy Card 3: Coming Soon -->
+                    <div class="athlete-card" onclick="showPage('register')">
+                        <div class="card-img-holder coming-soon-holder">
+                            <div class="coming-soon-overlay">
+                                <span class="sport-tag">Coming Soon</span>
+                                <h4>SLOT AVAILABLE</h4>
+                                <p>Register to claim this spot</p>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <h3>Next Prospect</h3>
+                            <p>Your profile could be featured here next</p>
+                        </div>
+                    </div>
+
+                    <!-- Dummy Card 4: Coming Soon -->
+                    <div class="athlete-card" onclick="showPage('register')">
+                        <div class="card-img-holder coming-soon-holder">
+                            <div class="coming-soon-overlay">
+                                <span class="sport-tag">Coming Soon</span>
+                                <h4>SLOT AVAILABLE</h4>
+                                <p>Register to claim this spot</p>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <h3>Next Prospect</h3>
+                            <p>Your profile could be featured here next</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Infinite Running Logo Ticker -->
+                <div class="logo-ticker-section">
+                    <span class="powered-by">OFFICIAL REPRESENTATION NETWORK</span>
+                    <div class="logo-ticker-wrapper">
+                        <div class="logo-ticker-track">
+                            <!-- First Set -->
+                            <div class="ticker-set">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                            </div>
+                            <!-- Duplicated Set for Seamless Infinite Loop -->
+                            <div class="ticker-set">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                                <img src="./assets/logo1.png" alt="The Cricket Agent Logo" class="ticker-logo-img">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <!-- About Waheed Shirzay Section -->
+        <section class="about-statement-section">
+            <div class="container">
+                <div class="statement-grid">
+                    <div class="statement-title">
+                        <h2>ABOUT THE AGENT</h2>
+                    </div>
+                    <div class="statement-body">
+                        <h2>Waheed Shirzay — ECB Registered Cricket Agent.</h2>
+                        <p>Waheed Shirzay is a UK-based, ECB Registered Cricket Agent specialising in player
+                            representation. Operating in line with ECB Agent Regulations and PCA standards, he offers a
+                            compliant, transparent and personal alternative to larger agencies.
+                            For cricketers — from aspiring professionals to overseas talent looking to play in the UK —
+                            Waheed sources and secures contracts at county, league, club and overseas level, negotiates
+                            fair terms, and provides honest career guidance. He also supports overseas players through
+                            UK visa and ECB endorsement requirements.
+                            Clubs looking to recruit can browse Waheed's full register of available, vetted players on
+                            his website.
+                            Every player is known individually — communication is direct, and no deal is pursued unless
+                            it genuinely serves the player's best interests.</p>
+                    </div>
+                </div>
+
+                <!-- Impact Card -->
+                <div class="impact-card-wrapper" id="gear-section">
+                    <div class="impact-card-left">
+                        <h2>PREMIER RECRUITMENT & CRICKET GEAR ACCESSORIES</h2>
+                        <p>From custom pro-spec match bats to complete player representation packages.</p>
+                        <button class="btn-pill-action btn-white" onclick="showPage('register')">Get Represented
+                            →</button>
+                    </div>
+                    <div class="impact-card-center">
+                        <img src="https://i.pinimg.com/736x/0a/75/97/0a7597906a747d4add82b474aa0b1564.jpg"
+                            alt="Cricket Gear" loading="lazy">
+                    </div>
+                    <div class="impact-card-right">
+                        <div class="stat-number-box">
+                            <span class="stat-num">85+</span>
+                            <span class="stat-lbl">Placed Players</span>
+                        </div>
+                        <div class="stat-number-box">
+                            <span class="stat-num">12</span>
+                            <span class="stat-lbl">UK Premier Leagues</span>
+                        </div>
+                        <div class="stat-number-box">
+                            <span class="stat-num">100%</span>
+                            <span class="stat-lbl">ECB Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Services Section -->
+        <section class="services-section">
+            <div class="container">
+                <div class="services-header">
+                    <h2>PROFESSIONAL SERVICES</h2>
+                    <p>Dedicated representation for players and verified recruitment for cricket clubs.</p>
+                </div>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🏏</div>
+                        <h3>FOR PLAYERS</h3>
+                        <ul class="service-list">
+                            <li><span class="check-mark">✓</span> Professional representation & contract negotiation
+                            </li>
+                            <li><span class="check-mark">✓</span> Direct trials with English county & Premier League
+                                clubs</li>
+                            <li><span class="check-mark">✓</span> Visa & ECB eligibility compliance guidance</li>
+                            <li><span class="check-mark">✓</span> Career management and club placement</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🏆</div>
+                        <h3>FOR CLUBS</h3>
+                        <ul class="service-list">
+                            <li><span class="check-mark">✓</span> Verified, eligible player rosters (UK & Overseas)</li>
+                            <li><span class="check-mark">✓</span> Direct, managed introductions with candidates</li>
+                            <li><span class="check-mark">✓</span> Complete career stats, video clips, and background
+                                checks</li>
+                            <li><span class="check-mark">✓</span> Fast-track transfer window placement process</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accessories Showcase -->
+        <section class="accessories-section">
+            <div class="container">
+                <div class="section-header-compact">
+                    <h2>PRO ACCESSORIES & GEAR SHOWCASE</h2>
+                    <p>Official match gear and equipment tailored for modern high-performance cricketers.</p>
+                </div>
+
+                <div class="gear-grid">
+                    <div class="gear-card">
+                        <img src="https://i.pinimg.com/736x/49/c4/ac/49c4acdc0920dc7af98b306b377a3d8f.jpg"
+                            alt="Pro Willow Bat" loading="lazy">
+                        <div class="gear-details">
+                            <span class="gear-cat">Batting</span>
+                            <h4>Grade 1+ Players Willow Bat</h4>
+                            <p>Hand-crafted pro profile with ultra-light pickup.</p>
+                        </div>
+                    </div>
+
+                    <div class="gear-card">
+                        <img src="https://i.pinimg.com/1200x/20/d1/17/20d1178d6afa21cbf3e68c93933f04cc.jpg"
+                            alt="Pro Soft Goods" loading="lazy">
+                        <div class="gear-details">
+                            <span class="gear-cat">Protection</span>
+                            <h4>Pro-Line Leg Guards & Gloves</h4>
+                            <p>High-density foam protection used in international circuits.</p>
+                        </div>
+                    </div>
+
+                    <div class="gear-card">
+                        <img src="https://i.pinimg.com/1200x/b0/96/6b/b0966be9974d809450484414f35f81ca.jpg"
+                            alt="Match Leather Balls" loading="lazy">
+                        <div class="gear-details">
+                            <span class="gear-cat">Match Equipment</span>
+                            <h4>4-Piece League Leather Balls</h4>
+                            <p>Hand-stitched seam for maximum durability and swing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PAGE 2: PLAYERS DIRECTORY -->
+    <main id="page-players" class="page-section">
+        <!-- Animated Cricket Background Layer -->
+        <div class="roster-bg-anim" aria-hidden="true">
+            <div class="cricket-bg-glow glow-top-left"></div>
+            <div class="cricket-bg-glow glow-bottom-right"></div>
+            <div class="floating-cricket-item item-stumps">🏆</div>
+            <div class="floating-cricket-item item-ball">🏏</div>
+        </div>
+
+        <div class="container page-padding">
+            <div class="section-header-compact">
+                <h2>AVAILABLE ROSTER DIRECTORY</h2>
+                <p>Filter player profiles by role, visa eligibility, and availability.</p>
+            </div>
+
+            <div class="filter-bar-dark">
+                <input type="text" id="searchInput" placeholder="Search by name or keyword..."
+                    oninput="filterPlayers()">
+                <select id="roleFilter" onchange="filterPlayers()">
+                    <option value="">All Roles</option>
+                    <option value="Batter">Batter</option>
+                    <option value="Bowler">Bowler</option>
+                    <option value="All-Rounder">All-Rounder</option>
+                    <option value="Wicket-Keeper">Wicket-Keeper</option>
+                </select>
+                <select id="eligibilityFilter" onchange="filterPlayers()">
+                    <option value="">All Eligibility</option>
+                    <option value="UK Eligible">UK Eligible</option>
+                    <option value="Overseas">Overseas</option>
+                </select>
+                <select id="availabilityFilter" onchange="filterPlayers()">
+                    <option value="">All Availability</option>
+                    <option value="Immediate">Immediate</option>
+                    <option value="2027 Season">2027 Season</option>
+                </select>
+            </div>
+
+            <div id="playersGrid" class="players-grid"></div>
+        </div>
+    </main>
+
+    <!-- PAGE 3: PLAYER REGISTRATION FORM -->
+    <!-- PAGE 3: PLAYER REGISTRATION FORM -->
+    <main id="page-register" class="page-section">
+        <div class="register-bg-anim">
+            <div class="floating-cricket-item item-ball-1">🏏</div>
+            <div class="floating-cricket-item item-ball-2">⚾</div>
+            <div class="floating-cricket-item item-stumps">🏆</div>
+            <div class="cricket-bg-glow glow-left"></div>
+            <div class="cricket-bg-glow glow-right"></div>
+        </div>
+
+        <div class="container page-padding">
+            <div class="form-header-text">
+                <h1 class="form-main-title">Player Registration</h1>
+                <p class="form-subtitle">Complete the form below with accurate details. All information is verified
+                    before your profile becomes visible to clubs.</p>
+            </div>
+
+            <div class="form-card-dark">
+                <form action="https://api.web3forms.com/submit" method="POST" id="playerRegistrationForm">
+
+                    <!-- Web3Forms Config -->
+                    <input type="hidden" name="access_key" value="520b2fb1-5f0e-45d6-a3fc-c766b2790bd5">
+                    <input type="hidden" name="subject" value="New Player Registration - The Cricket Agent">
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                    <!-- SECTION 1 -->
+                    <div class="form-section-block">
+                        <h3 class="section-heading">1. Personal & Contact Information</h3>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Full Legal Name *</label>
+                                <input type="text" name="full_name" placeholder="e.g. John Smith" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Preferred Name</label>
+                                <input type="text" name="preferred_name" placeholder="e.g. Johnny">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1 mb-3">
+                            <div class="form-group">
+                                <label>Date of Birth * <span class="label-hint">(Crucial for age-group
+                                        classification)</span></label>
+                                <input type="date" name="date_of_birth" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Email Address *</label>
+                                <input type="email" name="email" placeholder="player@domain.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number * <span class="label-hint">(Include country code, e.g.,
+                                        +44...)</span></label>
+                                <input type="tel" name="phone" placeholder="+XX..." required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Current City *</label>
+                                <input type="text" name="city" placeholder="e.g. London" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Current Country *</label>
+                                <input type="text" name="country" placeholder="e.g. United Kingdom" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Instagram Handle</label>
+                                <input type="url" name="instagram" placeholder="https://instagram.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label>X (Twitter) Handle</label>
+                                <input type="url" name="twitter" placeholder="https://x.com/...">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1">
+                            <div class="form-group">
+                                <label>LinkedIn Profile</label>
+                                <input type="url" name="linkedin" placeholder="https://linkedin.com/in/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2 -->
+                    <div class="form-section-block">
+                        <h3 class="section-heading">2. Player Profile & On-Field Statistics</h3>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Player Type *</label>
+                                <select name="player_role" required>
+                                    <option value="" disabled selected>Select your primary role...</option>
+                                    <option value="Batter">Batter</option>
+                                    <option value="Bowler">Bowler</option>
+                                    <option value="All-Rounder">All-Rounder</option>
+                                    <option value="Wicket-Keeper">Wicket-Keeper</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Batting Style *</label>
+                                <select name="batting_style" required>
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="Right-Hand Bat">Right-Hand Bat</option>
+                                    <option value="Left-Hand Bat">Left-Hand Bat</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Bowling Style *</label>
+                                <select name="bowling_style" required>
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="Right-Arm Fast">Right-Arm Fast</option>
+                                    <option value="Right-Arm Medium">Right-Arm Medium</option>
+                                    <option value="Right-Arm Spin">Right-Arm Spin</option>
+                                    <option value="Left-Arm Fast">Left-Arm Fast</option>
+                                    <option value="Left-Arm Spin">Left-Arm Spin</option>
+                                    <option value="N/A">N/A (Pure Batter)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Highest Level Played *</label>
+                                <select name="highest_level" required>
+                                    <option value="" disabled selected>Select Highest level...</option>
+                                    <option value="International">International</option>
+                                    <option value="First Class / List A">First Class / List A</option>
+                                    <option value="County / Franchise">County / Franchise</option>
+                                    <option value="Premier League Club">Premier League Club</option>
+                                    <option value="University / College">University / College</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1">
+                            <div class="form-group">
+                                <label>Cricinfo or Play-Cricket Profile Link * <span class="label-hint">(For
+                                        verification of statistics & history)</span></label>
+                                <input type="url" name="cricinfo_link" placeholder="https://www.espncricinfo.com/..."
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3 -->
+                    <div class="form-section-block">
+                        <h3 class="section-heading">3. Contractual & Legal Status</h3>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Passport Nationality *</label>
+                                <input type="text" name="passport_nationality"
+                                    placeholder="e.g. British, Pakistani, Australian" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Dual Citizenship</label>
+                                <input type="text" name="dual_citizenship" placeholder="If applicable...">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1">
+                            <div class="form-group">
+                                <label>Current Contractual Status * <span class="label-hint">(We must avoid poaching
+                                        conflicts)</span></label>
+                                <select name="contract_status" required>
+                                    <option value="" disabled selected>Select status...</option>
+                                    <option value="Unattached / Free Agent">Unattached / Free Agent</option>
+                                    <option value="Under Contract (Expiring Soon)">Under Contract (Expiring Soon)
+                                    </option>
+                                    <option value="Under Contract (Looking for Overseas Placement)">Under Contract
+                                        (Looking for Overseas Placement)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1">
+                            <div class="form-group">
+                                <label>Current Equipment Sponsor</label>
+                                <input type="text" name="equipment_sponsor"
+                                    placeholder="e.g., Gray-Nicolls, Kookaburra, None...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4 -->
+                    <div class="form-section-block">
+                        <h3 class="section-heading">4. Media & Verifiable Proof</h3>
+                       
+                        <div class="form-grid-1">
+                            <div class="form-group">
+                                <label>Video Highlights Link * <span class="label-hint">(YouTube, Vimeo, or Google Drive
+                                        — recent match footage)</span></label>
+                                <input type="url" name="video_highlights_link" placeholder="https://..." >
+                                 <!-- Highlighted Notice for CV Email Submission -->
+                        <div class="cv-notice-box">
+                            <div class="cv-notice-icon">📄⚠️</div>
+                            <div class="cv-notice-content">
+                                <h4>IMPORTANT: UPLOAD YOUR CRICKET RESUME / CV VIA EMAIL</h4>
+                                <p>Due to system limitations on direct file uploads, after submitting this form, you
+                                    <strong>must</strong> email your complete Cricket CV / Resume and Player Profile
+                                    documents directly to our official representation inbox: <a
+                                        href="mailto:ws.thecricketagent@gmail.com">ws.thecricketagent@gmail.com</a> with
+                                    your full legal name in the subject line.</p>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Legal Declaration -->
+                    <div class="form-declaration mb-4">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="declaration_accepted" required>
+                            <span class="checkmark"></span>
+                            <span class="declaration-text">I declare that all information provided is true and accurate.
+                                I understand that misrepresentation may result in immediate removal from the Cric Prime
+                                roster and disqualification from all representation opportunities. I authorise Cric
+                                Prime Agency to verify my profile and contact relevant parties on my behalf.</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="submit-btn-primary">
+                        Submit Player Registration <span class="btn-icon">✈️</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- PLAYER PROFILE MODAL -->
+    <div id="playerModal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-card-dark">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- ENQUIRY MODAL -->
+    <div id="enquiryModal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-card-dark">
+            <span class="close-modal" onclick="closeEnquiryModal()">&times;</span>
+            <h3>CLUB ENQUIRY</h3>
+            <p id="enquiryPlayerName" class="sub-text"></p>
+            <form action="https://api.web3forms.com/submit" method="POST" class="dark-form">
+
+                <!-- Yahan bhi wahi same Access Key ayegi -->
+                <input type="hidden" name="access_key" value="520b2fb1-5f0e-45d6-a3fc-c766b2790bd5">
+                <input type="hidden" name="subject" value="New Club Enquiry - The Cricket Agent">
+                <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+                <input type="hidden" id="enquirePlayerId" name="player_interested_in">
+                <div class="input-group mb-3">
+                    <label>Club Name *</label>
+                    <input type="text" name="club_name" required>
+                </div>
+                <div class="input-group mb-3">
+                    <label>League / Division *</label>
+                    <input type="text" name="league" required>
+                </div>
+                <div class="input-group mb-3">
+                    <label>Contact Email / Phone *</label>
+                    <input type="text" name="contact" required>
+                </div>
+                <div class="input-group mb-3">
+                    <label>Message *</label>
+                    <textarea name="message" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn-primary">Send Direct Enquiry →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dark-footer">
+        <div class="container footer-content">
+            <div class="footer-left">
+                <span class="footer-logo">THE CRICKET AGENT</span>
+                <p>Waheed Shirzay — ECB Registered Agent #ECB-98421</p>
+            </div>
+            <div class="footer-right">
+                <p>Email: <a href="mailto:ws.thecricketagent@gmail.com">ws.thecricketagent@gmail.com</a></p>
+                
+                <p class="copy">© 2026 TheCricketAgent.com. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
