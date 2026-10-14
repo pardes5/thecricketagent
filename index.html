@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Cricket Agent | Elite Player Representation</title>
-    <meta name="google-site-verification" content="YY1uzD3ZHP88JwANXOGNWO3DXKRnBkHYzEsnwsCWb7A" />
+
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="./assets/logo1.png">
     <link rel="apple-touch-icon" href="./assets/logo1.png">
@@ -21,6 +21,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+<!-- Supabase -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -149,17 +151,15 @@
                     </div>
 
                     <!-- Dummy Card 2: Coming Soon -->
-                    <div class="athlete-card" onclick="showPage('register')">
-                        <div class="card-img-holder coming-soon-holder">
-                            <div class="coming-soon-overlay">
-                                <span class="sport-tag">Coming Soon</span>
-                                <h4>SLOT AVAILABLE</h4>
-                                <p>Register to claim this spot</p>
-                            </div>
+                    <div class="athlete-card" onclick="showPage('players')">
+                        <div class="card-img-holder">
+                            <!-- Yahan aap apne real player ki image ka link ya local path daal sakte hain -->
+                            <img src="./assets/ID-2.jpeg" alt="Real Player" loading="lazy">
+                            <span class="sport-tag tag-lime">Verified Pro</span>
                         </div>
                         <div class="card-info">
-                            <h3>Next Prospect</h3>
-                            <p>Your profile could be featured here next</p>
+                            <h3>Sabir Baharami</h3>
+                            <p> All-Rounder</p>
                         </div>
                     </div>
 
@@ -678,12 +678,14 @@
         <div class="container footer-content">
             <div class="footer-left">
                 <span class="footer-logo">THE CRICKET AGENT</span>
-                <p>Waheed Shirzay — ECB Registered Agent #ECB-98421</p>
+                <p>Waheed Shirzay — ECB Registered Agent #ECB---</p>
             </div>
             <div class="footer-right">
                 <p>Email: <a href="mailto:ws.thecricketagent@gmail.com">ws.thecricketagent@gmail.com</a></p>
                 
-                <p class="copy">© 2026 TheCricketAgent.com. All Rights Reserved.</p>
+                <p class="copy">© 2026 TheCricketAgent.com. All Rights Reserved.
+                    <span style="margin-left: 10px;">• <a href="admin.html" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; margin-left: 5px;">Admin Login</a></span>
+                </p>
             </div>
         </div>
     </footer>
