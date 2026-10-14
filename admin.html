@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | The Cricket Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body, input, select, button, textarea {
+        cursor: auto !important;
+    }
+        .admin-container { max-width: 800px; margin: 100px auto 40px auto; padding: 0 20px; }
+        .admin-card { background: var(--bg-dark-card); border: 1px solid var(--border-dark); padding: 30px; border-radius: 20px; margin-bottom: 30px; }
+        .hidden-section { display: none; }
+        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-dark); }
+        .btn-danger { background: #ff3b30; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <!-- LOGIN SECTION (Only for you) -->
+        <div id="loginSection" class="admin-card">
+            <h2 style="font-family: var(--font-heading); font-size: 2.2rem; margin-bottom: 20px; color: var(--accent-lime);">ADMIN LOGIN</h2>
+            <form id="loginForm">
+                <div class="form-group mb-3">
+                    <label>Admin Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your admin email">
+                </div>
+                <div class="form-group mb-3">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn-primary">Login to Dashboard →</button>
+            </form>
+        </div>
+
+        <!-- DASHBOARD SECTION (Protected) -->
+        <div id="dashboardSection" class="hidden-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--accent-lime);">PLAYER MANAGEMENT</h2>
+                <button class="btn-danger" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- ADD NEW PLAYER FORM -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 20px; color: #fff;">Add New Player Profile</h3>
+                <form id="addPlayerForm">
+                    <div class="form-grid-2">
+                        <div class="form-group"><label>Full Name *</label><input type="text" id="pName" required></div>
+                        <div class="form-group"><label>Age *</label><input type="number" id="pAge" required></div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Role *</label>
+                            <select id="pRole" required style="background:#0f1113; color:#fff; padding:10px; border-radius:8px; border:1px solid #2a2e33;">
+                                <option value="Batter">Batter</option>
+                                <option value="Bowler">Bowler</option>
+                                <option value="All-Rounder">All-Rounder</option>
+                                <option value="Wicket-Keeper">Wicket-Keeper</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Eligibility *</label>
+                            <select id="pEligibility" required style="background:#0f1113; color:#fff; padding:10px; border-radius:8px; border:1px solid #2a2e33;">
+                                <option value="UK Eligible">UK Eligible</option>
+                                <option value="Overseas">Overseas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group"><label>Availability *</label><input type="text" id="pAvailability" placeholder="e.g. Immediate" required></div>
+                        <div class="form-group"><label>Key Summary Stat *</label><input type="text" id="pKeyStat" placeholder="e.g. Batting Avg: 98.45" required></div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group"><label>Batting Style</label><input type="text" id="pBattingStyle" placeholder="e.g. Right-Hand Bat"></div>
+                        <div class="form-group"><label>Bowling Style</label><input type="text" id="pBowlingStyle" placeholder="e.g. Right-Arm Fast"></div>
+                    </div>
+                    <div class="form-group mb-3"><label>Career Summary</label><input type="text" id="pCareer" placeholder="e.g. Current: Playing for Club"></div>
+                    <div class="form-group mb-3"><label>Detailed Stats</label><input type="text" id="pDetailedStats" placeholder="e.g. Runs: 1,394 | HS: 179*"></div>
+                    <div class="form-group mb-3"><label>Achievements</label><input type="text" id="pAchievements" placeholder="e.g. Player of the Season"></div>
+                    
+                    <div class="form-group mb-4">
+                        <label>Player Photo *</label>
+                        <input type="file" id="pPhotoFile" accept="image/*" required style="padding: 10px; background:#0f1113; color:#fff;">
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="submit-btn-primary">Publish Player to Live Website ✈️</button>
+                </form>
+            </div>
+
+            <!-- EXISTING PLAYERS LIST -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 15px; color: #fff;">Live Roster Management</h3>
+                <div id="adminPlayersList" style="color: #9aa0a6;">Loading roster...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Apni Supabase Keys Yahan Dalein
+        const SUPABASE_URL = 'https://fwxfrvsmbymcifywdwex.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3eGZydnNtYnltY2lmeXdkd2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MjU1NjEsImV4cCI6MjEwNzUwMTU2MX0.5nRCxC7CexHEcSpQm8abuw6HhgM-_uvSUk0T35tUpnM';
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+        persistSession: false,
+        autoRefreshToken: false
+    }
+});
+        
+
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (session) {
+                document.getElementById('loginSection').classList.add('hidden-section');
+                document.getElementById('dashboardSection').classList.remove('hidden-section');
+                loadAdminPlayers();
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden-section');
+                document.getElementById('dashboardSection').classList.add('hidden-section');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const { error } = await db.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert('Login failed: ' + error.message);
+            } else {
+                checkAuth();
+            }
+        });
+
+        async function logout() {
+            await db.auth.signOut();
+            checkAuth();
+        }
+
+        document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'Uploading Image & Saving...';
+            btn.disabled = true;
+
+            try {
+                const file = document.getElementById('pPhotoFile').files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+
+                // Upload image to storage bucket
+                const { error: imgError } = await db.storage
+                    .from('player-photos')
+                    .upload(fileName, file);
+
+                if (imgError) throw imgError;
+
+                const { data: urlData } = db.storage.from('player-photos').getPublicUrl(fileName);
+                const photoUrl = urlData.publicUrl;
+
+                // Insert into database table
+                const newPlayer = {
+                    name: document.getElementById('pName').value,
+                    age: parseInt(document.getElementById('pAge').value),
+                    role: document.getElementById('pRole').value,
+                    eligibility: document.getElementById('pEligibility').value,
+                    availability: document.getElementById('pAvailability').value,
+                    keyStat: document.getElementById('pKeyStat').value,
+                    photo: photoUrl,
+                    battingStyle: document.getElementById('pBattingStyle').value,
+                    bowlingStyle: document.getElementById('pBowlingStyle').value,
+                    career: document.getElementById('pCareer').value,
+                    detailedStats: document.getElementById('pDetailedStats').value,
+                    achievements: document.getElementById('pAchievements').value
+                };
+
+                const { error: insertError } = await db.from('players').insert([newPlayer]);
+                if (insertError) throw insertError;
+
+                alert('Player published successfully to live website!');
+                document.getElementById('addPlayerForm').reset();
+                loadAdminPlayers();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                btn.innerText = 'Publish Player to Live Website ✈️';
+                btn.disabled = false;
+            }
+        });
+
+        async function loadAdminPlayers() {
+            const { data, error } = await db.from('players').select('*').order('id', { ascending: false });
+            const listContainer = document.getElementById('adminPlayersList');
+            if (error || !data.length) {
+                listContainer.innerHTML = '<p>No players found.</p>';
+                return;
+            }
+            listContainer.innerHTML = data.map(p => `
+                <div class="player-row">
+                    <div>
+                        <strong style="color:#fff;">${p.name}</strong> (${p.role}) - <span style="color:var(--accent-lime);">${p.eligibility}</span>
+                    </div>
+                    <button class="btn-danger" onclick="deletePlayer(${p.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function deletePlayer(id) {
+            if (!confirm('Are you sure you want to delete this player?')) return;
+            const { error } = await db.from('players').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadAdminPlayers();
+        }
+
+        checkAuth();
+
+        
+    </script>
+</body>
+</html>
