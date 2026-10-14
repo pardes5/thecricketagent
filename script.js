@@ -1,96 +1,75 @@
 // Roster Dataset
-const players = [
-    {
-        id: 1,
-        name: "Ziaul Haq Parwan",
-        age: 24,
-        role: "Batter",
-        eligibility: "UK Eligible",
-        availability: "Immediate",
-        keyStat: "Batting Avg: 126.73 | 18 Wickets",
-        photo: "./assets/ID-1.png",
-        battingStyle: "Right-Hand Bat",
-        bowlingStyle: "Right-Arm Medium",
-        career: "Current: Playing for Aston Manor CC",
-        detailedStats: "Runs: 1,394 | Highest Score: 179*",
-        achievements: "League Player of the Season 2025"
-    },
-    {
-        id: 2,
-        name: "-----",
-        age: 0,
-        role: "----",
-        eligibility: "----",
-        availability: "----",
-        keyStat: "----",
-        photo: "https://i.pinimg.com/736x/b6/20/46/b6204661fee639026aa71a10e7f8e373.jpg",
-        battingStyle: "----",
-        bowlingStyle: "----",
-        career: "Current: ----",
-        detailedStats: "----",
-        achievements: "----"
-    },
-    {
-        id: 3,
-         name: "-----",
-        age: 0,
-        role: "----",
-        eligibility: "----",
-        availability: "----",
-        keyStat: "----",
-        photo: "https://i.pinimg.com/736x/b6/20/46/b6204661fee639026aa71a10e7f8e373.jpg",
-        battingStyle: "----",
-        bowlingStyle: "----",
-        career: "Current: ----",
-        detailedStats: "----",
-        achievements: "----"
-    },
-    {
-        id: 4,
-         name: "-----",
-        age: 0,
-        role: "----",
-        eligibility: "----",
-        availability: "----",
-        keyStat: "----",
-        photo: "https://i.pinimg.com/736x/b6/20/46/b6204661fee639026aa71a10e7f8e373.jpg",
-        battingStyle: "----",
-        bowlingStyle: "----",
-        career: "Current: ----",
-        detailedStats: "----",
-        achievements: "----"
-    },
-    {
-        id: 5,
-         name: "-----",
-        age: 0,
-        role: "----",
-        eligibility: "----",
-        availability: "----",
-        keyStat: "----",
-        photo: "https://i.pinimg.com/736x/b6/20/46/b6204661fee639026aa71a10e7f8e373.jpg",
-        battingStyle: "----",
-        bowlingStyle: "----",
-        career: "Current: ----",
-        detailedStats: "----",
-        achievements: "----"
-    },
-    {
-        id: 6,
-         name: "-----",
-        age: 0,
-        role: "----",
-        eligibility: "----",
-        availability: "----",
-        keyStat: "----",
-        photo: "https://i.pinimg.com/736x/b6/20/46/b6204661fee639026aa71a10e7f8e373.jpg",
-        battingStyle: "----",
-        bowlingStyle: "----",
-        career: "Current: ----",
-        detailedStats: "----",
-        achievements: "----"
-    },
-];
+// Supabase Configuration (Yahan bhi wahi keys dalein)
+const SUPABASE_URL = 'https://fwxfrvsmbymcifywdwex.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3eGZydnNtYnltY2lmeXdkd2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MjU1NjEsImV4cCI6MjEwNzUwMTU2MX0.5nRCxC7CexHEcSpQm8abuw6HhgM-_uvSUk0T35tUpnM';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let players = [];
+
+// Fetch Dynamic Players from Database
+async function fetchPlayersFromDB() {
+    const { data, error } = await db.from('players').select('*').order('id', { ascending: false });
+    if (error) {
+        console.error('Error fetching players:', error);
+        return;
+    }
+    players = data;
+    renderPlayers(players);
+    renderFeaturedCarousel(players);
+}
+
+function renderFeaturedCarousel(data) {
+    const carousel = document.querySelector('.players-carousel');
+    if (!carousel) return;
+
+    let cardsHTML = '';
+    const activePlayers = data ? data.slice(0, 4) : [];
+
+    // Database wale players render karein
+    activePlayers.forEach(p => {
+        cardsHTML += `
+            <div class="athlete-card" onclick="showPage('players')">
+                <div class="card-img-holder">
+                    <img src="${p.photo}" alt="${p.name}" loading="lazy">
+                    <span class="sport-tag ${p.eligibility === 'UK Eligible' ? 'tag-lime' : ''}">${p.eligibility}</span>
+                </div>
+                <div class="card-info">
+                    <h3>${p.name}</h3>
+                    <p>${p.role} • ${p.keyStat}</p>
+                </div>
+            </div>
+        `;
+    });
+
+    // Agar 4 se kam players hon, toh baaki slots mein 'Coming Soon' cards fill kar dein
+    const remainingSlots = 4 - activePlayers.length;
+    for (let i = 0; i < remainingSlots; i++) {
+        cardsHTML += `
+            <div class="athlete-card" onclick="showPage('register')">
+                <div class="card-img-holder coming-soon-holder">
+                    <div class="coming-soon-overlay">
+                        <span class="sport-tag">Coming Soon</span>
+                        <h4>SLOT AVAILABLE</h4>
+                        <p>Register to claim this spot</p>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <h3>Next Prospect</h3>
+                    <p>Your profile could be featured here next</p>
+                </div>
+            </div>
+        `;
+    }
+
+    carousel.innerHTML = cardsHTML;
+}
+
+// DOM Ready par call karein
+document.addEventListener('DOMContentLoaded', () => {
+    fetchPlayersFromDB();
+    initHeroParticles();
+    initCustomCursor();
+});
 
 // SPA Router
 function showPage(pageId) {
@@ -110,7 +89,7 @@ function showPage(pageId) {
 function renderPlayers(data) {
     const grid = document.getElementById('playersGrid');
     if (!grid) return;
-    
+
     grid.innerHTML = data.map(p => `
         <div class="athlete-card" onclick="openPlayerModal(${p.id})">
             <div class="card-img-holder">
@@ -177,7 +156,7 @@ function closeEnquiryModal() {
     document.getElementById('enquiryModal').style.display = 'none';
 }
 
-window.onclick = function(e) {
+window.onclick = function (e) {
     const playerModal = document.getElementById('playerModal');
     const enquiryModal = document.getElementById('enquiryModal');
     if (e.target === playerModal) closeModal();
