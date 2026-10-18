@@ -1,270 +1,363 @@
-// Roster Dataset
-// Supabase Configuration (Yahan bhi wahi keys dalein)
+'use strict';
+
+/* ==========================================
+   CONFIG
+   The anon key is public by design. Security comes from
+   Row Level Security on the Supabase tables/buckets (see README notes).
+   ========================================== */
 const SUPABASE_URL = 'https://fwxfrvsmbymcifywdwex.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3eGZydnNtYnltY2lmeXdkd2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MjU1NjEsImV4cCI6MjEwNzUwMTU2MX0.5nRCxC7CexHEcSpQm8abuw6HhgM-_uvSUk0T35tUpnM';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+
+const COMING_SOON_CARD = `
+    <div class="athlete-card" data-page="register">
+        <div class="card-img-holder coming-soon-holder">
+            <div class="coming-soon-overlay">
+                <span class="sport-tag">Coming Soon</span>
+                <h4>SLOT AVAILABLE</h4>
+                <p>Register to claim this spot</p>
+            </div>
+        </div>
+        <div class="card-info">
+            <h3>Next Prospect</h3>
+            <p>Your profile could be featured here next</p>
+        </div>
+    </div>`;
 
 let players = [];
 
-// Fetch Dynamic Players from Database
+/* ==========================================
+   HELPERS
+   ========================================== */
+const $ = (id) => document.getElementById(id);
+
+// Escape any database value before inserting it into HTML (prevents XSS).
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+
+// Allow only http(s) URLs; anything else falls back.
+function safeUrl(url, fallback = '') {
+    if (!url) return fallback;
+    try {
+        const u = new URL(url, location.href);
+        return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+/* ==========================================
+   DATA
+   ========================================== */
 async function fetchPlayersFromDB() {
     const { data, error } = await db.from('players').select('*').order('id', { ascending: false });
     if (error) {
         console.error('Error fetching players:', error);
         return;
     }
-    players = data;
+    players = data || [];
     renderPlayers(players);
     renderFeaturedCarousel(players);
 }
 
 function renderFeaturedCarousel(data) {
-    const carousel = document.querySelector('.players-carousel');
+    const carousel = $('featuredCarousel') || document.querySelector('.players-carousel');
     if (!carousel) return;
 
-    let cardsHTML = '';
-    const activePlayers = data ? data.slice(0, 4) : [];
+    const live = data.slice(0, 4).map((p) => `
+    <div class="athlete-card" data-page="players">
+        <div class="card-img-holder">
+            <img src="${escapeHTML(safeUrl(p.photo))}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">
+            <span class="sport-tag ${p.eligibility === 'UK Eligible' ? 'tag-lime' : ''}">${escapeHTML(p.eligibility)}</span>
+        </div>
+        <div class="card-info">
+            <h3>${escapeHTML(p.name)}</h3>
+            <p>${escapeHTML(p.role)} • ${escapeHTML(p.keyStat)}</p>
+        </div>
+    </div>`);
 
-    // Database wale players render karein
-    activePlayers.forEach(p => {
-        cardsHTML += `
-            <div class="athlete-card" onclick="showPage('players')">
-                <div class="card-img-holder">
-                    <img src="${p.photo}" alt="${p.name}" loading="lazy">
-                    <span class="sport-tag ${p.eligibility === 'UK Eligible' ? 'tag-lime' : ''}">${p.eligibility}</span>
-                </div>
-                <div class="card-info">
-                    <h3>${p.name}</h3>
-                    <p>${p.role} • ${p.keyStat}</p>
-                </div>
-            </div>
-        `;
-    });
-
-    // Agar 4 se kam players hon, toh baaki slots mein 'Coming Soon' cards fill kar dein
-    const remainingSlots = 4 - activePlayers.length;
-    for (let i = 0; i < remainingSlots; i++) {
-        cardsHTML += `
-            <div class="athlete-card" onclick="showPage('register')">
-                <div class="card-img-holder coming-soon-holder">
-                    <div class="coming-soon-overlay">
-                        <span class="sport-tag">Coming Soon</span>
-                        <h4>SLOT AVAILABLE</h4>
-                        <p>Register to claim this spot</p>
-                    </div>
-                </div>
-                <div class="card-info">
-                    <h3>Next Prospect</h3>
-                    <p>Your profile could be featured here next</p>
-                </div>
-            </div>
-        `;
-    }
-
-    carousel.innerHTML = cardsHTML;
+    const placeholders = Array(Math.max(0, 4 - live.length)).fill(COMING_SOON_CARD);
+    carousel.innerHTML = [...live, ...placeholders].join('');
 }
 
-// DOM Ready par call karein
-document.addEventListener('DOMContentLoaded', () => {
-    fetchPlayersFromDB();
-    initHeroParticles();
-    initCustomCursor();
-});
-
-// SPA Router
-function showPage(pageId) {
-    document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-
-    const targetPage = document.getElementById(`page-${pageId}`);
-    if (targetPage) targetPage.classList.add('active');
-
-    const targetNav = document.getElementById(`nav-${pageId}`);
-    if (targetNav) targetNav.classList.add('active');
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Render Players Directory
+// Players directory
 function renderPlayers(data) {
-    const grid = document.getElementById('playersGrid');
+    const grid = $('playersGrid');
     if (!grid) return;
 
-    grid.innerHTML = data.map(p => `
-        <div class="athlete-card" onclick="openPlayerModal(${p.id})">
+    grid.innerHTML = data.map((p) => `
+        <div class="athlete-card" data-player-id="${Number(p.id)}">
             <div class="card-img-holder">
-                <img src="${p.photo}" alt="${p.name}" loading="lazy">
-                <span class="sport-tag ${p.eligibility === 'UK Eligible' ? 'tag-lime' : ''}">${p.eligibility}</span>
+                <img src="${escapeHTML(safeUrl(p.photo))}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">
+                <span class="sport-tag ${p.eligibility === 'UK Eligible' ? 'tag-lime' : ''}">${escapeHTML(p.eligibility)}</span>
             </div>
             <div class="card-info">
-                <h3>${p.name} (${p.age})</h3>
-                <p>${p.role} • ${p.keyStat}</p>
+                <h3>${escapeHTML(p.name)} (${escapeHTML(p.age)})</h3>
+                <p>${escapeHTML(p.role)} • ${escapeHTML(p.keyStat)}</p>
             </div>
         </div>
     `).join('');
 }
 
-// Filter Players Logic
 function filterPlayers() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const role = document.getElementById('roleFilter').value;
-    const eligibility = document.getElementById('eligibilityFilter').value;
-    const availability = document.getElementById('availabilityFilter').value;
+    const search = $('searchInput').value.toLowerCase();
+    const role = $('roleFilter').value;
+    const eligibility = $('eligibilityFilter').value;
+    const availability = $('availabilityFilter').value;
 
-    const filtered = players.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(search) || p.role.toLowerCase().includes(search);
-        const matchesRole = !role || p.role === role;
-        const matchesEligibility = !eligibility || p.eligibility === eligibility;
-        const matchesAvailability = !availability || p.availability === availability;
-
-        return matchesSearch && matchesRole && matchesEligibility && matchesAvailability;
+    const filtered = players.filter((p) => {
+        const name = (p.name || '').toLowerCase();
+        const pRole = p.role || '';
+        return (name.includes(search) || pRole.toLowerCase().includes(search))
+            && (!role || pRole === role)
+            && (!eligibility || p.eligibility === eligibility)
+            && (!availability || p.availability === availability);
     });
 
     renderPlayers(filtered);
 }
 
-// Modal View Handlers
-function openPlayerModal(id) {
-    const player = players.find(p => p.id === id);
-    if (!player) return;
+/* ==========================================
+   ROUTING & MODALS
+   ========================================== */
+function showPage(pageId) {
+    document.querySelectorAll('.page-section').forEach((sec) => {
+        sec.classList.toggle('active', sec.id === `page-${pageId}`);
+    });
+    document.querySelectorAll('.nav-link').forEach((link) => {
+        link.classList.toggle('active', link.id === `nav-${pageId}`);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    const modalBody = document.getElementById('modalBody');
-    modalBody.innerHTML = `
-        <h2 style="font-family:'Bebas Neue'; font-size:2.5rem; line-height:1;">${player.name}</h2>
-        <p style="color:var(--accent-lime); font-size:0.85rem; margin-bottom:15px;">${player.role} | ${player.eligibility}</p>
-        <p><strong>Career:</strong> ${player.career}</p>
-        <p><strong>Key Stats:</strong> ${player.detailedStats}</p>
-        <p><strong>Highlights:</strong> ${player.achievements}</p>
-        <button class="submit-btn-primary" style="margin-top:20px;" onclick="openEnquiryModal('${player.name}')">Enquire About Player →</button>
-    `;
+function openPlayerModal(playerId) {
+    const modal = $('playerModal');
+    const body = $('modalBody');
+    const player = players.find((p) => Number(p.id) === Number(playerId));
+    if (!modal || !body || !player) return;
 
-    document.getElementById('playerModal').style.display = 'flex';
+    // Yahan humne purane data ke sath naye stats (keyStat, detailedStats, achievements) add kar diye hain
+    const rows = [
+        ['Name', player.name],
+        ['Age', player.age],
+        ['Nationality', player.nationality], 
+        ['Player Status', player.availability || 'Available'],
+        ['Playing Role', player.role],
+        ['Bowling Style', player.bowlingStyle],
+        ['Batting Style', player.battingStyle],
+        ['Entry Route (UK)', player.eligibility],
+        ['Major Teams / Career', player.career],
+        // Naye Stats wale rows yahan se shuru hain
+        ['Key Summary Stat', player.keyStat],
+        ['Detailed Statistics', player.detailedStats],
+        ['Major Achievements', player.achievements]
+    ];
+
+    const tableRows = rows.map(([label, value]) =>
+        `<tr><td>${label}</td><td>${escapeHTML(value || 'N/A')}</td></tr>`).join('');
+
+    body.innerHTML = `
+        <h2 class="modal-title">${escapeHTML(player.name)}</h2>
+        <table class="player-details-table"><tbody>${tableRows}</tbody></table>
+        <!-- Is line ko replace karein -->
+        <div class="modal-actions">
+            <button type="button" class="btn-stats" data-stats="${Number(player.id)}">View Statistics 📊</button>
+            <button type="button" class="submit-btn-primary" data-enquire="${escapeHTML(player.name)}">Enquire About Player &rarr;</button>
+        </div>`;
+
+    modal.style.display = 'flex';
 }
 
 function closeModal() {
-    document.getElementById('playerModal').style.display = 'none';
+    $('playerModal').style.display = 'none';
 }
 
 function openEnquiryModal(playerName) {
     closeModal();
-    document.getElementById('enquiryPlayerName').innerText = `Target Player: ${playerName}`;
-    document.getElementById('enquirePlayerId').value = playerName;
-    document.getElementById('enquiryModal').style.display = 'flex';
+    $('enquiryPlayerName').textContent = `Enquiring for: ${playerName}`;
+    $('enquirePlayerId').value = playerName;
+    $('enquiryModal').style.display = 'flex';
 }
 
 function closeEnquiryModal() {
-    document.getElementById('enquiryModal').style.display = 'none';
+    $('enquiryModal').style.display = 'none';
 }
 
-window.onclick = function (e) {
-    const playerModal = document.getElementById('playerModal');
-    const enquiryModal = document.getElementById('enquiryModal');
-    if (e.target === playerModal) closeModal();
-    if (e.target === enquiryModal) closeEnquiryModal();
-};
+/* ==========================================
+   EVENTS (single delegated listeners)
+   ========================================== */
+function wireEvents() {
+    document.addEventListener('click', (e) => {
+        const pageLink = e.target.closest('[data-page]');
+        if (pageLink) return showPage(pageLink.dataset.page);
 
-// Lightweight Hero Particles
+        const card = e.target.closest('[data-player-id]');
+        if (card) return openPlayerModal(card.dataset.playerId);
+
+        // Yeh line naye stats button ki click pakregi
+        const statsBtn = e.target.closest('[data-stats]');
+        if (statsBtn) return openStatsModal(statsBtn.dataset.stats);
+
+        // Yeh line background click par stats modal band karegi
+        if (e.target === $('statsModal')) closeStatsModal();
+
+        const enquire = e.target.closest('[data-enquire]');
+        if (enquire) return openEnquiryModal(enquire.dataset.enquire);
+
+        // Click on the dark backdrop closes the open modal
+        if (e.target === $('playerModal')) closeModal();
+        if (e.target === $('enquiryModal')) closeEnquiryModal();
+    });
+}
+
+/* ==========================================
+   HERO PARTICLES
+   Pauses when the hero is off-screen or the tab is hidden.
+   ========================================== */
 function initHeroParticles() {
     const hero = document.querySelector('.hero-dark');
     if (!hero) return;
 
     const canvas = document.createElement('canvas');
-    canvas.id = 'heroParticlesCanvas';
-    canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.35;';
+    canvas.className = 'hero-particles';
     hero.appendChild(canvas);
 
     const ctx = canvas.getContext('2d');
+    const COUNT = 35;
+    let w = 0, h = 0, raf = 0, inView = true;
     let particles = [];
 
-    function resize() {
-        canvas.width = hero.offsetWidth;
-        canvas.height = hero.offsetHeight;
-    }
-    window.addEventListener('resize', resize, { passive: true });
-    resize();
+    const spawn = (p = {}) => {
+        p.x = Math.random() * w;
+        p.y = h + Math.random() * 20;
+        p.size = Math.random() * 1.8 + 0.5;
+        p.speed = Math.random() * 0.4 + 0.1;
+        p.opacity = Math.random() * 0.5 + 0.2;
+        return p;
+    };
 
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = canvas.height + Math.random() * 20;
-            this.size = Math.random() * 1.8 + 0.5;
-            this.speedY = Math.random() * 0.4 + 0.1;
-            this.opacity = Math.random() * 0.5 + 0.2;
-        }
-        update() {
-            this.y -= this.speedY;
-            if (this.y < -10) this.reset();
-        }
-        draw() {
-            ctx.fillStyle = `rgba(204, 255, 0, ${this.opacity})`;
+    const resize = () => {
+        w = canvas.width = hero.offsetWidth;
+        h = canvas.height = hero.offsetHeight;
+        if (!particles.length) particles = Array.from({ length: COUNT }, () => spawn());
+    };
+
+    const frame = () => {
+        ctx.clearRect(0, 0, w, h);
+        for (const p of particles) {
+            p.y -= p.speed;
+            if (p.y < -10) spawn(p);
+            ctx.fillStyle = `rgba(204, 255, 0, ${p.opacity})`;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fill();
         }
+        raf = requestAnimationFrame(frame);
+    };
+
+    const start = () => { if (!raf && inView && !document.hidden) raf = requestAnimationFrame(frame); };
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+
+    window.addEventListener('resize', resize, { passive: true });
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+            inView = entry.isIntersecting;
+            inView ? start() : stop();
+        }).observe(hero);
     }
 
-    for (let i = 0; i < 35; i++) particles.push(new Particle());
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animate);
-    }
-    animate();
+    resize();
+    start();
 }
 
-// Custom Cursor Tracking Logic
+/* ==========================================
+   CUSTOM CURSOR
+   Runs only while the follower is still moving.
+   ========================================== */
 function initCustomCursor() {
-    if (window.innerWidth < 992) return; // Skip on mobile/tablets
+    if (window.innerWidth < 992) return;
 
-    const cursor = document.getElementById('custom-cursor');
-    const follower = document.getElementById('cursor-follower');
-
+    const cursor = $('custom-cursor');
+    const follower = $('cursor-follower');
     if (!cursor || !follower) return;
 
-    let mouseX = 0, mouseY = 0;
-    let followerX = 0, followerY = 0;
+    let mouseX = 0, mouseY = 0, fx = 0, fy = 0, raf = 0;
+
+    const step = () => {
+        fx += (mouseX - fx) * 0.15;
+        fy += (mouseY - fy) * 0.15;
+        follower.style.left = `${fx}px`;
+        follower.style.top = `${fy}px`;
+        const settled = Math.abs(mouseX - fx) < 0.1 && Math.abs(mouseY - fy) < 0.1;
+        raf = settled ? 0 : requestAnimationFrame(step);
+    };
 
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-
         cursor.style.left = `${mouseX}px`;
         cursor.style.top = `${mouseY}px`;
+        if (!raf) raf = requestAnimationFrame(step);
     }, { passive: true });
 
-    function render() {
-        followerX += (mouseX - followerX) * 0.15;
-        followerY += (mouseY - followerY) * 0.15;
-
-        follower.style.left = `${followerX}px`;
-        follower.style.top = `${followerY}px`;
-
-        requestAnimationFrame(render);
-    }
-    render();
-
     document.addEventListener('mouseover', (e) => {
-        if (e.target.closest('a, button, input, select, .athlete-card')) {
-            document.body.classList.add('cursor-hover');
-        } else {
-            document.body.classList.remove('cursor-hover');
-        }
+        const hovering = e.target instanceof Element && !!e.target.closest('a, button, input, select, .athlete-card');
+        document.body.classList.toggle('cursor-hover', hovering);
     });
 }
 
-// DOM Ready Initialization
+/* ==========================================
+   INIT
+   ========================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    renderPlayers(players);
+    wireEvents();
+    fetchPlayersFromDB();
     initHeroParticles();
     initCustomCursor();
 });
 
-// Preloader Hide
 window.addEventListener('load', () => {
-    const loader = document.getElementById('cricket-loader');
-    if (loader) {
-        setTimeout(() => loader.classList.add('fade-out'), 600);
-    }
+    const loader = $('cricket-loader');
+    if (loader) setTimeout(() => loader.classList.add('fade-out'), 600);
 });
+function openStatsModal(playerId) {
+    closeModal(); 
+    
+    const player = players.find((p) => Number(p.id) === Number(playerId));
+    if (!player) return;
+
+    $('statsModalTitle').textContent = `${player.name} - STATISTICS`;
+
+    // Agar admin ne team ka naam nahi daala, toh error se bachne ke liye empty state dikhayenge
+    if (!player.stat_team) {
+        $('statsTableBody').innerHTML = `<tr><td colspan="12" style="padding: 20px; text-align: center; color: #6c757d;">No detailed statistics available for this player yet.</td></tr>`;
+    } else {
+        // Table body mein admin ka daala hua data inject kar rahe hain
+        $('statsTableBody').innerHTML = `
+            <tr style="border-bottom: 1px solid #e9ecef; text-align: center;">
+                <td style="padding: 12px; text-align: left; color: #2563eb; font-weight: 500;">${escapeHTML(player.stat_team)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_mts)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_inns)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_no)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_runs)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_hs)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_bat_ave)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_ovs)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_bowl_runs)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_wkts)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_bb)}</td>
+                <td style="padding: 12px;">${escapeHTML(player.stat_bowl_avg)}</td>
+            </tr>
+        `;
+    }
+
+    $('statsModal').style.display = 'flex';
+}
+
+function closeStatsModal() {
+    $('statsModal').style.display = 'none';
+}
