@@ -225,11 +225,12 @@ window.removeSeason = (index) => {
     renderSeasonsPreview();
 };
 
-if($('addSeasonBtn')) {$('addSeasonBtn').addEventListener('click', () => {
+if ($('addSeasonBtn')) {
+    $('addSeasonBtn').addEventListener('click', () => {
         const season = $('tSeason').value.trim();
         if (!season) return alert("Season/Year is required!");
-})
-      const statObj = {
+
+        const statObj = {
             season: season, 
             mts: $('tMts').value.trim() || '-', 
             inns: $('tInns').value.trim() || '-',
@@ -242,4 +243,14 @@ if($('addSeasonBtn')) {$('addSeasonBtn').addEventListener('click', () => {
             wkts: $('tWkts').value.trim() || '-', 
             bb: $('tBB').value.trim() || '-',
             bowlAvg: $('tBowlAvg').value.trim() || '-'
-        }};
+        };
+
+        playerSeasons.push(statObj);
+        renderSeasonsPreview();
+
+        // Box ko aglay season ke liye khali karna
+        ['tSeason', 'tMts', 'tInns', 'tNO', 'tRuns', 'tHS', 'tBatAve', 'tOvs', 'tBowlRuns', 'tWkts', 'tBB', 'tBowlAvg'].forEach(id => {
+            if ($(id)) $(id).value = '';
+        });
+    });
+}
