@@ -53,64 +53,63 @@ $('addPlayerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = $('submitBtn');
     const idleLabel = btn.textContent;
+    const editId = $('editPlayerId').value; // Check karein agar edit mode hai
 
     const file = $('pPhotoFile').files[0];
-    if (!file) return alert('Please choose a photo.');
-    if (!PHOTO_EXT[file.type]) return alert('Photo must be a JPG, PNG, WEBP or GIF image.');
-    if (file.size > MAX_PHOTO_BYTES) return alert('Photo must be 5 MB or smaller.');
+    
+    // Naya player banate waqt photo zaroori hai, edit mein nahi
+    if (!editId && !file) return alert('Please choose a photo.'); 
+    if (file && !PHOTO_EXT[file.type]) return alert('Photo must be a JPG, PNG, WEBP or GIF image.');
+    if (file && file.size > MAX_PHOTO_BYTES) return alert('Photo must be 5 MB or smaller.');
 
     const age = parseInt($('pAge').value, 10);
-    if (!Number.isInteger(age) || age < 1 || age > 99) return alert('Enter a valid age.');
+    const val = (id) => $(id) ?$(id).value.trim() : '';
 
-    const val = (id) => $(id).value.trim();
-
-    btn.textContent = 'Uploading Image & Saving...';
+    btn.textContent = editId ? 'Updating Profile...' : 'Uploading Image & Saving...';
     btn.disabled = true;
 
     try {
-        const path = `${randomName()}.${PHOTO_EXT[file.type]}`;
-        const { error: uploadError } = await db.storage
-            .from(BUCKET)
-            .upload(path, file, { contentType: file.type, cacheControl: '3600' });
-        if (uploadError) throw uploadError;
+        let photoUrl = undefined;
 
-        const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(path);
+        // Agar user ne naya photo upload kiya hai (Insert ya Edit dono mein)
+        if (file) {
+            const path = `${randomName()}.${PHOTO_EXT[file.type]}`;
+            const { error: uploadError } = await db.storage
+                .from(BUCKET)
+                .upload(path, file, { contentType: file.type, cacheControl: '3600' });
+            if (uploadError) throw uploadError;
 
-        const { error: insertError } = await db.from('players').insert([{
-            name: val('pName'),
-            age,
-            role: val('pRole'),
-            eligibility: val('pEligibility'),
-            availability: val('pAvailability'),
-            keyStat: val('pKeyStat'),
-            photo: urlData.publicUrl,
-            battingStyle: val('pBattingStyle'),
-            bowlingStyle: val('pBowlingStyle'),
-            career: val('pCareer'),
-            detailedStats: val('pDetailedStats'),
-            achievements: val('pAchievements'),
-            // Existing fields...
-            achievements: val('pAchievements'),
-            
-            // New Stat Fields for Table
-            stat_team: val('pStatTeam'),
-            stat_mts: val('pStatMts') || '-',
-            stat_inns: val('pStatInns') || '-',
-            stat_no: val('pStatNO') || '-',
-            stat_runs: val('pStatRuns') || '-',
-            stat_hs: val('pStatHS') || '-',
-            stat_bat_ave: val('pStatBatAve') || '-',
-            stat_ovs: val('pStatOvs') || '-',
-            stat_bowl_runs: val('pStatBowlRuns') || '-',
-            stat_wkts: val('pStatWkts') || '-',
-            stat_bb: val('pStatBB') || '-',
-            stat_bowl_avg: val('pStatBowlAvg') || '-'
-        }]);
-        if (insertError) throw insertError;
+            const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(path);
+            photoUrl = urlData.publicUrl;
+        }
 
-        alert('Player published successfully to live website!');
-        $('addPlayerForm').reset();
-        loadAdminPlayers();
+       const playerData = {
+            name: val('pName'), age, role: val('pRole'),
+            nationality: val('pNationality'), // <-- Yeh line naii add ki hai
+            eligibility: val('pEligibility'), availability: val('pAvailability'),
+            keyStat: val('pKeyStat'), battingStyle: val('pBattingStyle'),
+            bowlingStyle: val('pBowlingStyle'), career: val('pCareer'),
+            detailedStats: val('pDetailedStats'), achievements: val('pAchievements'),
+            statsLink: val('pStatsLink'), 
+            season_stats: $('pSeasonStats').value // Yeh naya array add kiya hai
+        };
+
+        if (photoUrl) playerData.photo = photoUrl; // Naya photo database object mein daalein
+
+        if (editId) {
+            // EDIT/UPDATE Logic
+            const { error: updateError } = await db.from('players').update(playerData).eq('id', editId);
+            if (updateError) throw updateError;
+            alert('Player details updated successfully!');
+        } else {
+            // INSERT Logic
+            const { error: insertError } = await db.from('players').insert([playerData]);
+            if (insertError) throw insertError;
+            alert('Player published successfully to live website!');
+        }
+
+        $('cancelEditBtn').click(); // Form ko reset kar dega
+        loadAdminPlayers(); // List dobara update karega
     } catch (err) {
         alert('Error: ' + err.message);
     } finally {
@@ -120,36 +119,124 @@ $('addPlayerForm').addEventListener('submit', async (e) => {
 });
 
 /* ---------- Roster ---------- */
+let adminRosterData = []; // Naya global variable
+
 async function loadAdminPlayers() {
     const list = $('adminPlayersList');
-    const { data, error } = await db.from('players')
-        .select('id,name,role,eligibility')
-        .order('id', { ascending: false });
+    // select('*') use kiya taake edit karne ke liye saara data mil jaye
+    const { data, error } = await db.from('players').select('*').order('id', { ascending: false });
 
-    if (error) {
-        list.textContent = 'Could not load roster.';
-        return;
-    }
-    if (!data.length) {
-        list.innerHTML = '<p>No players found.</p>';
-        return;
-    }
+    if (error) { list.textContent = 'Could not load roster.'; return; }
+    if (!data.length) { list.innerHTML = '<p>No players found.</p>'; return; }
+
+    adminRosterData = data; // Data ko array mein save kar liya
+
     list.innerHTML = data.map((p) => `
-        <div class="player-row">
-            <div>
+        <div class="player-row" style="display: flex; gap: 10px; align-items: center;">
+            <div style="flex-grow: 1;">
                 <strong class="text-white">${escapeHTML(p.name)}</strong>
                 (${escapeHTML(p.role)}) - <span class="accent-lime">${escapeHTML(p.eligibility)}</span>
             </div>
+            <!-- Edit Button Add Kiya -->
+            <button type="button" class="submit-btn-primary" style="padding: 6px 14px; font-size: 0.85rem; width: auto;" data-edit="${Number(p.id)}">Edit</button>
             <button type="button" class="btn-danger" data-delete="${Number(p.id)}">Delete</button>
         </div>`).join('');
 }
 
 $('adminPlayersList').addEventListener('click', async (e) => {
-    const btn = e.target.closest('[data-delete]');
-    if (!btn || !confirm('Are you sure you want to delete this player?')) return;
-    const { error } = await db.from('players').delete().eq('id', Number(btn.dataset.delete));
-    if (error) alert(error.message);
-    else loadAdminPlayers();
+    // Delete Logic
+    const delBtn = e.target.closest('[data-delete]');
+    if (delBtn && confirm('Are you sure you want to delete this player?')) {
+        const { error } = await db.from('players').delete().eq('id', Number(delBtn.dataset.delete));
+        if (error) alert(error.message);
+        else loadAdminPlayers();
+        return;
+    }
+
+    // Edit Logic
+    const editBtn = e.target.closest('[data-edit]');
+    if (editBtn) {
+        const id = Number(editBtn.dataset.edit);
+        const player = adminRosterData.find(p => p.id === id);
+        if (player) {
+            $('formTitle').textContent = "Edit Player Profile: " + player.name;
+            $('submitBtn').textContent = "Update Player Data 🔄";
+            $('cancelEditBtn').style.display = 'block';
+            $('editPlayerId').value = player.id;
+            $('pPhotoFile').required = false; // Edit mein naya photo zaroori nahi
+            $('photoHint').textContent = "(Leave empty to keep existing photo)";
+
+            // Form mein purana data bhar dein
+            const valSet = (id, val) => { if($(id)) $(id).value = val || ''; };
+            valSet('pName', player.name); valSet('pAge', player.age);
+            valSet('pNationality', player.nationality); // <-- Yeh line naii add ki hai
+            valSet('pRole', player.role); valSet('pEligibility', player.eligibility);
+            valSet('pAvailability', player.availability); valSet('pKeyStat', player.keyStat);
+            valSet('pBattingStyle', player.battingStyle); valSet('pBowlingStyle', player.bowlingStyle);
+            valSet('pCareer', player.career); valSet('pDetailedStats', player.detailedStats);
+            valSet('pAchievements', player.achievements); valSet('pStatsLink', player.statsLink);
+            
+           // Edit open karte waqt purane stats load karna
+            $('pSeasonStats').value = player.season_stats || '[]';
+            playerSeasons = JSON.parse($('pSeasonStats').value);
+            renderSeasonsPreview();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Form ke upar scroll karein
+        }
+    }
+});
+
+// Cancel Edit Button ka Logic
+$('cancelEditBtn').addEventListener('click', () => {
+    $('addPlayerForm').reset();
+    $('formTitle').textContent = "Add New Player Profile";
+    $('submitBtn').textContent = "Publish Player to Live Website ✈️";
+    $('cancelEditBtn').style.display = 'none';
+    $('editPlayerId').value = '';
+    $('pPhotoFile').required = true;
+    $('photoHint').textContent = "(JPG, PNG, WEBP or GIF, max 5 MB)";
 });
 
 checkAuth();
+
+let playerSeasons = []; 
+
+function renderSeasonsPreview() {
+    const container = $('seasonStatsPreview');
+    if (playerSeasons.length === 0) {
+        container.innerHTML = "No seasons added yet.";
+        $('pSeasonStats').value = "[]";
+        return;
+    }
+    container.innerHTML = playerSeasons.map((s, index) => `
+        <div style="background: #0f1113; padding: 10px; border: 1px solid #2a2e33; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <div><strong class="text-white">${s.season}</strong> | Mts: ${s.mts} | Runs: ${s.runs} | Wkts: ${s.wkts}</div>
+            <button type="button" class="btn-danger" style="padding: 4px 10px; font-size: 0.8rem;" onclick="removeSeason(${index})">Delete</button>
+        </div>
+    `).join('');
+    $('pSeasonStats').value = JSON.stringify(playerSeasons);
+}
+
+window.removeSeason = (index) => {
+    playerSeasons.splice(index, 1);
+    renderSeasonsPreview();
+};
+
+if($('addSeasonBtn')) {$('addSeasonBtn').addEventListener('click', () => {
+        const season = $('tSeason').value.trim();
+        if (!season) return alert("Season/Year is required!");
+})
+      const statObj = {
+            season: season, 
+            mts: $('tMts').value.trim() || '-', 
+            inns: $('tInns').value.trim() || '-',
+            no: $('tNO').value.trim() || '-', 
+            runs: $('tRuns').value.trim() || '-',
+            hs: $('tHS').value.trim() || '-', 
+            batAve: $('tBatAve').value.trim() || '-',
+            ovs: $('tOvs').value.trim() || '-', 
+            bowlRuns: $('tBowlRuns').value.trim() || '-',
+            wkts: $('tWkts').value.trim() || '-', 
+            bb: $('tBB').value.trim() || '-',
+            bowlAvg: $('tBowlAvg').value.trim() || '-'
+        }};
