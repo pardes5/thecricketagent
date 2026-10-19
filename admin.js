@@ -98,7 +98,7 @@ $('addPlayerForm').addEventListener('submit', async (e) => {
 
         if (editId) {
             // EDIT/UPDATE Logic
-            const { error: updateError } = await db.from('players').update(playerData).eq('id', editId);
+           const { error: updateError } = await db.from('players').update(playerData).eq('id', Number(editId));
             if (updateError) throw updateError;
             alert('Player details updated successfully!');
         } else {
