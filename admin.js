@@ -132,10 +132,13 @@ async function loadAdminPlayers() {
     adminRosterData = data; // Data ko array mein save kar liya
 
     list.innerHTML = data.map((p) => `
-        <div class="player-row" style="display: flex; gap: 10px; align-items: center;">
+       <div class="player-row" style="display: flex; gap: 10px; align-items: center;">
             <div style="flex-grow: 1;">
                 <strong class="text-white">${escapeHTML(p.name)}</strong>
-                (${escapeHTML(p.role)}) - <span class="accent-lime">${escapeHTML(p.eligibility)}</span>
+                (${escapeHTML(p.role)}) - 
+                <span style="color: ${p.eligibility === 'UK Eligible' ? 'var(--accent-lime)' : (p.eligibility === 'Domestic' ? '#10b981' : '#fff')}; font-weight: bold;">
+                    ${escapeHTML(p.eligibility)}
+                </span>
             </div>
             <!-- Edit Button Add Kiya -->
             <button type="button" class="submit-btn-primary" style="padding: 6px 14px; font-size: 0.85rem; width: auto;" data-edit="${Number(p.id)}">Edit</button>
