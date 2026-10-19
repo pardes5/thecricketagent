@@ -321,8 +321,9 @@
         <section class="video-highlights-section">
             <div class="container">
                 <div class="section-header-compact">
-                    <h2>HIGHLIGHTS & MEDIA</h2>
-                    <p>Videos are coming soon.</p>
+                    <h2>PLAYER HIGHLIGHTS & MEDIA</h2>
+                    <p>Watch our elite talent in action. Verified match footage and recent performances from global
+                        leagues.</p>
                 </div>
 
                 <div class="video-grid">
@@ -479,6 +480,7 @@
                     <option value="">All Eligibility</option>
                     <option value="UK Eligible">UK Eligible</option>
                     <option value="Overseas">Overseas</option>
+                    <option value="Domestic">Domestic</option>
                 </select>
                 <select id="availabilityFilter" onchange="filterPlayers()">
                     <option value="">All Availability</option>
@@ -906,7 +908,11 @@
                 <table style="width: 100%; border-collapse: collapse; min-width: 800px; background: #fff; color: #333; font-size: 0.85rem; border-radius: 4px; overflow: hidden;">
                     <thead>
                         <tr style="background: #f8f9fa; color: #6c757d; border-bottom: 2px solid #dee2e6; text-align: center;">
-                            <th style="padding: 12px; text-align: left; font-weight: 500;">Team (Season)</th>
+                           <th style="padding: 12px; text-align: left; font-weight: 500;">
+                                <select id="seasonDropdown" onchange="renderSelectedSeason()" style="background: transparent; color: #2563eb; font-weight: bold; border: none; outline: none; cursor: pointer; font-size: 0.9rem; padding: 0;">
+                                    <!-- Options JS se aayenge -->
+                                </select>
+                            </th>
                             <th style="padding: 12px; font-weight: 500;">Mts</th>
                             <th style="padding: 12px; font-weight: 500;">Inns</th>
                             <th style="padding: 12px; font-weight: 500;">NO</th>
