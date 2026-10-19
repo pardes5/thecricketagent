@@ -50,8 +50,10 @@
 
             <!-- ADD NEW PLAYER FORM -->
             <div class="admin-card">
-                <h3 class="text-white" style="margin-bottom: 20px;">Add New Player Profile</h3>
-                <form id="addPlayerForm">
+               <h3 id="formTitle" class="text-white" style="margin-bottom: 20px;">Add New Player Profile</h3>
+            <form id="addPlayerForm">
+                <!-- Naya hidden field jo edit karte waqt player ki ID save karega -->
+                <input type="hidden" id="editPlayerId" value="">
                     <div class="form-grid-2">
                         <div class="form-group"><label for="pName">Full Name *</label><input type="text" id="pName" required></div>
                         <div class="form-group"><label for="pAge">Age *</label><input type="number" id="pAge" min="1" max="99" required></div>
@@ -74,6 +76,11 @@
                             </select>
                         </div>
                     </div>
+                    <!-- Nationality Field Added -->
+                    <div class="form-group mb-3">
+                        <label for="pNationality">Nationality *</label>
+                        <input type="text" id="pNationality" placeholder="e.g. Afghan, British, Pakistani" required>
+                    </div>
                     <div class="form-grid-2">
                         <div class="form-group"><label for="pAvailability">Availability *</label><input type="text" id="pAvailability" placeholder="e.g. Immediate" required></div>
                         <div class="form-group"><label for="pKeyStat">Key Summary Stat *</label><input type="text" id="pKeyStat" placeholder="e.g. Batting Avg: 98.45" required></div>
@@ -84,37 +91,51 @@
                     </div>
                     <div class="form-group mb-3"><label for="pCareer">Career Summary</label><input type="text" id="pCareer" placeholder="e.g. Current: Playing for Club"></div>
                     <div class="form-group mb-3"><label for="pDetailedStats">Detailed Stats</label><input type="text" id="pDetailedStats" placeholder="e.g. Runs: 1,394 | HS: 179*"></div>
-                    <div class="form-group mb-3"><label for="pAchievements">Achievements</label><input type="text" id="pAchievements" placeholder="e.g. Player of the Season"></div>
-                    <!-- DETAILED STATISTICS FOR POPUP TABLE -->
-                    <h4 class="text-white" style="margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px;">Official Statistics (For Popup Table)</h4>
-                    
+                    <!-- Achievements ki jagah naya Stats Link field -->
                     <div class="form-group mb-3">
-                        <label for="pStatTeam">Team (Season) *</label>
-                        <input type="text" id="pStatTeam" placeholder="e.g. Rochdale (2023)" required>
+                        <label for="pStatsLink">External Stats Link</label>
+                        <input type="url" id="pStatsLink" placeholder="e.g. https://www.play-cricket.com/...">
                     </div>
+                    <!-- DETAILED STATISTICS FOR POPUP TABLE -->
+                    <!-- SEASON-WISE DETAILED STATISTICS -->
+                    <h4 class="text-white" style="margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px;">Detailed Statistics (Year-wise)</h4>
+                    
+                    <div style="background: #1a1d21; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div class="form-grid-2" style="margin-bottom: 10px;">
+                            <div class="form-group"><label>Season/Year (e.g. ALL, 2026) *</label><input type="text" id="tSeason"></div>
+                        </div>
+                        <div class="form-grid-2" style="margin-bottom: 10px;">
+                            <div class="form-group"><label>Mts (Matches)</label><input type="text" id="tMts"></div>
+                            <div class="form-group"><label>Inns (Innings)</label><input type="text" id="tInns"></div>
+                            <div class="form-group"><label>NO (Not Outs)</label><input type="text" id="tNO"></div>
+                            <div class="form-group"><label>Runs</label><input type="text" id="tRuns"></div>
+                            <div class="form-group"><label>HS (High Score)</label><input type="text" id="tHS"></div>
+                            <div class="form-group"><label>Ave (Batting Avg)</label><input type="text" id="tBatAve"></div>
+                        </div>
+                        <div class="form-grid-2" style="margin-bottom: 10px;">
+                            <div class="form-group"><label>Ovs (Overs)</label><input type="text" id="tOvs"></div>
+                            <div class="form-group"><label>Runs (Conceded)</label><input type="text" id="tBowlRuns"></div>
+                            <div class="form-group"><label>Wkts (Wickets)</label><input type="text" id="tWkts"></div>
+                            <div class="form-group"><label>BB (Best Bowling)</label><input type="text" id="tBB"></div>
+                            <div class="form-group"><label>Avg (Bowling Avg)</label><input type="text" id="tBowlAvg"></div>
+                        </div>
+                        <button type="button" id="addSeasonBtn" class="submit-btn-primary" style="padding: 10px; font-size: 0.9rem; margin-top: 10px;">+ Add Season Stats</button>
+                        
+                        <!-- Added Seasons Preview -->
+                        <div id="seasonStatsPreview" style="margin-top: 15px; color: #a0a5ab; font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px;"></div>
+                        
+                        <!-- Hidden Input for Database -->
+                        <input type="hidden" id="pSeasonStats" value="[]">
+                    </div>
+                   <div class="form-group mb-4">
+                    <label for="pPhotoFile">Player Photo * <span id="photoHint" class="label-hint">(JPG, PNG, WEBP or GIF, max 5 MB)</span></label>
+                    <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/gif" required class="admin-file">
+                </div>
 
-                    <div class="form-grid-2">
-                        <div class="form-group"><label for="pStatMts">Mts (Matches)</label><input type="text" id="pStatMts"></div>
-                        <div class="form-group"><label for="pStatInns">Inns (Innings)</label><input type="text" id="pStatInns"></div>
-                        <div class="form-group"><label for="pStatNO">NO (Not Outs)</label><input type="text" id="pStatNO"></div>
-                        <div class="form-group"><label for="pStatRuns">Runs</label><input type="text" id="pStatRuns"></div>
-                        <div class="form-group"><label for="pStatHS">HS (Highest Score)</label><input type="text" id="pStatHS"></div>
-                        <div class="form-group"><label for="pStatBatAve">Ave (Batting Average)</label><input type="text" id="pStatBatAve"></div>
-                    </div>
-
-                    <div class="form-grid-2 mt-3">
-                        <div class="form-group"><label for="pStatOvs">Ovs (Overs)</label><input type="text" id="pStatOvs"></div>
-                        <div class="form-group"><label for="pStatBowlRuns">Runs (Conceded)</label><input type="text" id="pStatBowlRuns"></div>
-                        <div class="form-group"><label for="pStatWkts">Wkts (Wickets)</label><input type="text" id="pStatWkts"></div>
-                        <div class="form-group"><label for="pStatBB">BB (Best Bowling)</label><input type="text" id="pStatBB"></div>
-                        <div class="form-group"><label for="pStatBowlAvg">Avg (Bowling Average)</label><input type="text" id="pStatBowlAvg"></div>
-                    </div>
-                    <div class="form-group mb-4">
-                        <label for="pPhotoFile">Player Photo * <span class="label-hint">(JPG, PNG, WEBP or GIF, max 5 MB)</span></label>
-                        <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/gif" required class="admin-file">
-                    </div>
-
+                    <div style="display: flex; gap: 15px; align-items: center;">
                     <button type="submit" id="submitBtn" class="submit-btn-primary">Publish Player to Live Website ✈️</button>
+                    <button type="button" id="cancelEditBtn" class="btn-danger" style="display: none; padding: 14px 20px;">Cancel Edit</button>
+                </div>
                 </form>
             </div>
 
