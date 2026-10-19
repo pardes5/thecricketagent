@@ -387,7 +387,8 @@ body {
     border-radius: 20px;
 }
 
-.tag-lime { background: var(--accent-lime); }
+.tag-lime { background: var(--accent-lime); } /* Yeh pehle se likha hoga */
+.tag-domestic { background: #10b981; color: #ffffff; } /* Yeh naya pyara greenish color hai */
 
 .card-info { padding: 15px 5px 5px 5px; }
 .card-info h3 { font-size: 1.1rem; font-weight: 700; }
